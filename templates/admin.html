@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Lightfirm</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Lightfirm</div>
+        <div>
+            <a href="/">View Site</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <h2>Upload New Work</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="text" name="title" id="title" placeholder="Project Title e.g. 【entity-Nike¦canonical_name=Nike】 Logo" required>
+            <select name="category" id="category" required>
+                <option value="">Select Category</option>
+                <option value="Logo">Logo</option>
+                <option value="Flyer">Flyer</option>
+                <option value="Brand Identity">Brand Identity</option>
+                <option value="Poster">Poster</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="file" name="image" id="image" accept="image/*" required>
+            <button type="submit" class="btn-primary" id="uploadBtn">Upload</button>
+            <p id="uploadStatus"></p>
+        </form>
+
+        <hr>
+
+        <h2>Your Works</h2>
+        <div id="adminGrid" class="admin-grid"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>
