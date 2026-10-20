@@ -1,49 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - Lightfirm</title>
+    <title>Lightfirm - Creative Graphic Studio</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
 <body>
     <nav class="navbar">
         <div class="logo">LIGHTFIRM</div>
         <div class="hamburger" id="hamburger">☰</div>
         <div class="nav-links" id="navLinks">
-            <a href="/">Home</a>
+            <a href="/" class="active">Home</a>
             <a href="/portfolio">Portfolio</a>
-            <a href="/about" class="active">About</a>
+            <a href="/about">About</a>
             <a href="/contact">Contact</a>
             <a href="/login" class="btn-small">Admin</a>
-        </div>
+            </div>
     </nav>
 
-    <section class="about-section">
-        <div class="about-text">
-            <h1>About <span class="gradient-text">Lightfirm</span></h1>
-            <p>Lightfirm is not just a portfolio - it's a creative powerhouse. We specialize in bold, colorful,
-                memorable designs that make brands stand out in a crowded market.</p>
-            <p>Founded with the idea that design should be both beautiful and functional, we have worked with startups,
-                small businesses, and personal brands to light up their identity.</p>
-            <h3>Tools We Use</h3>
-            <ul class="tools-list">
-                <li>【entity-Adobe Photoshop¦canonical_name=Adobe Photoshop】</li>
-                <li>Illustrator</li>
-                <li>CorelDraw</li>
-                <li>【entity-Figma¦canonical_name=Figma】</li>
-                <li>After Effects</li>
-            </ul>
-        </div>
-        <div class="about-image">
-            <div class="gradient-box"></div>
-        </div>
+    <section class="about-hero">
+        <h1>We don't just design.<br><span>We light up brands.</span></h1>
+        <p>Lightfirm is a creative powerhouse based in Nigeria, specializing in bold, colorful, memorable designs that make brands stand out in a crowded market.</p>
     </section>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
-</body>
+    <div class="about-grid">
+        <div class="about-image">✨</div>
+        <div class="about-text">
+            <h2>Built on Creativity & Function</h2>
+            <p>Founded with the idea that design should be both beautiful and functional, we have worked with startups, small businesses, and personal brands to transform their identity.</p>
+            <p>Every project is crafted with attention to detail, strategy, and that signature Lightfirm glow that makes your brand unforgettable.</p>
+            
+            <div class="tools">
+                <span class="tool-tag">Adobe Photoshop</span>
+                <span class="tool-tag">Illustrator</span>
+                <span class="tool-tag">CorelDraw</span>
+                <span class="tool-tag">Figma</span>
+                <span class="tool-tag">After Effects</span>
+            </div>
+        </div>
+    </div>
 
+    <div class="stats">
+        <div class="stat"><h3>100+</h3><p>Projects Delivered</p></div>
+        <div class="stat"><h3>60+</h3><p>Happy Clients</p></div>
+        <div class="stat"><h3>3+</h3><p>Years Experience</p></div>
+    </div>
+
+    <footer style="text-align:center;padding:40px;color:#555">© 2026 Lightfirm</footer>
+</body>
 </html>
