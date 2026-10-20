@@ -33,6 +33,52 @@
         </form>
     </section>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <script>
+    // CONTACT FORM - MAKE IT SEND REAL MESSAGE
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      const status = document.getElementById('contactStatus');
+      
+      const originalText = btn.textContent;
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      status.textContent = '';
+      status.style.color = '#888';
+
+      const payload = {
+        name: document.getElementById('c_name').value.trim(),
+        email: document.getElementById('c_email').value.trim(),
+        message: document.getElementById('c_message').value.trim()
+      };
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+
+        if (res.ok && result.success) {
+          status.style.color = '#00ff88';
+          status.textContent = '✅ Message sent! We will reply to ' + payload.email + ' soon.';
+          document.getElementById('contactForm').reset();
+        } else {
+          status.style.color = '#ff4d5a';
+          status.textContent = '❌ ' + (result.error || 'Failed to send. Try again.');
+        }
+      } catch (err) {
+        status.style.color = '#ff4d5a';
+        status.textContent = '❌ Network error: ' + err.message;
+      }
+
+      btn.textContent = originalText;
+      btn.disabled = false;
+    });
+    </script>
 </body>
 </html>
