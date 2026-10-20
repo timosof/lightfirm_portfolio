@@ -147,7 +147,6 @@ def send_contact():
     try:
         data = request.get_json(force=True, silent=True)
         if not data:
-            # fallback if sent as form-data
             data = request.form
         
         name = (data.get('name') or '').strip()
@@ -157,30 +156,17 @@ def send_contact():
         if not name or not email or not message_text:
             return jsonify({'error': 'All fields required'}), 400
 
-        # Save
-        try:
-            supabase_admin.table('contact_messages').insert({
-                "name": name, "email": email, "message": message_text
-            }).execute()
-        except Exception as db_err:
-            print("DB save failed:", db_err)
-
-        # Send email (optional - don't crash)
-        try:
-            if app.config.get('MAIL_USERNAME'):
-                msg = Message(
-                    subject=f"New Message from {name}",
-                    recipients=[os.getenv('MAIL_TO', os.getenv('MAIL_USERNAME'))],
-                    body=f"From: {name} <{email}>\n\n{message_text}"
-                )
-                mail.send(msg)
-        except Exception as mail_err:
-            print("Mail failed:", mail_err)
+        # Save to Supabase only
+        supabase_admin.table('contact_messages').insert({
+            "name": name,
+            "email": email,
+            "message": message_text
+        }).execute()
 
         return jsonify({'success': True})
 
     except Exception as e:
-        print("CONTACT CRASH:", str(e))
+        print("CONTACT ERROR:", str(e))
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
