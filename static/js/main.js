@@ -1,3 +1,15 @@
+// Mobile hamburger
+document.addEventListener('DOMContentLoaded', () => {
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  if(hamburger){
+    hamburger.addEventListener('click', ()=>{
+      navLinks.classList.toggle('active');
+      hamburger.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+    });
+  }
+});
+
 // Portfolio page load
 document.addEventListener('DOMContentLoaded', () => {
   const portfolioGrid = document.getElementById('portfolioGrid');

@@ -9,13 +9,14 @@
 <body>
     <nav class="navbar">
         <div class="logo">LIGHTFIRM</div>
-        <div class="nav-links">
-            <a href="/">Home</a>
+        <div class="hamburger" id="hamburger">☰</div>
+        <div class="nav-links" id="navLinks">
+            <a href="/" class="active">Home</a>
             <a href="/portfolio">Portfolio</a>
             <a href="/about">About</a>
             <a href="/contact">Contact</a>
-            <a href="/admin" class="btn-small">Admin</a>
-        </div>
+            <a href="/login" class="btn-small">Admin</a>
+            </div>
     </nav>
 
     <section class="hero">
@@ -41,7 +42,7 @@
     </section>
 
     <footer>
-        <p>© 2026 Lightfirm. Built with color.</p>
+        <p>© 2026 Lightfirm. Built with love .</p>
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -56,3 +57,5 @@
     </script>
 </body>
 </html>
+
+
