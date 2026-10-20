@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import datetime
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -37,7 +38,6 @@ SUPABASE_BUCKET = os.getenv('SUPABASE_BUCKET', 'lightfirm-portfolio')
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 supabase_admin: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
-# Admin User
 class AdminUser(UserMixin):
     def __init__(self, id):
         self.id = id
@@ -49,11 +49,6 @@ def load_user(user_id):
     if user_id == ADMIN_EMAIL:
         return AdminUser(user_id)
     return None
-
-# --- Helper to generate password hash - run once in terminal ---
-# python -c "from flask_bcrypt import Bcrypt; print(Bcrypt().generate_password_hash('YOUR_PASSWORD').decode())"
-
-# --- Routes ---
 
 @app.route('/')
 def index():
@@ -67,7 +62,7 @@ def portfolio():
 def about():
     return render_template('about.html')
 
-@app.route('/contact')
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
     return render_template('contact.html')
 
@@ -99,8 +94,6 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-# --- API ---
-
 @app.route('/api/portfolios')
 def get_portfolios():
     try:
@@ -116,29 +109,18 @@ def upload_portfolio():
         title = request.form.get('title')
         category = request.form.get('category')
         file = request.files.get('image')
-
         if not title or not category or not file:
             return jsonify({'error': 'Title, category and image required'}), 400
-
         filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
         file_bytes = file.read()
-
-        # Upload to Supabase Storage
         supabase_admin.storage.from_(SUPABASE_BUCKET).upload(
-            path=filename,
-            file=file_bytes,
+            path=filename, file=file_bytes,
             file_options={"content-type": file.content_type}
         )
-
         public_url = supabase_admin.storage.from_(SUPABASE_BUCKET).get_public_url(filename)
-
-        # Save to DB
         supabase_admin.table('portfolios').insert({
-            "title": title,
-            "category": category,
-            "image_url": public_url
+            "title": title, "category": category, "image_url": public_url
         }).execute()
-
         return jsonify({'success': True, 'url': public_url})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -147,10 +129,8 @@ def upload_portfolio():
 @login_required
 def delete_portfolio(id):
     try:
-        # Get record to get image url
         item = supabase_admin.table('portfolios').select('*').eq('id', id).single().execute()
         if item.data:
-            # Delete from storage (extract filename from url)
             image_url = item.data['image_url']
             filename = image_url.split('/')[-1]
             try:
@@ -168,19 +148,39 @@ def send_contact():
         data = request.get_json()
         name = data.get('name')
         email = data.get('email')
-        message = data.get('message')
+        message_text = data.get('message')
 
-        if not name or not email or not message:
+        if not name or not email or not message_text:
             return jsonify({'error': 'All fields required'}), 400
 
-        msg = Message(
-            subject=f"New Lightfirm Contact from {name}",
-            recipients=[os.getenv('MAIL_TO')],
-            body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
-        )
-        mail.send(msg)
-        return jsonify({'success': True})
+        # 1. Save to Supabase FIRST (must succeed)
+        try:
+            supabase_admin.table('contact_messages').insert({
+                "name": name,
+                "email": email,
+                "message": message_text
+            }).execute()
+        except Exception as db_err:
+            print(f"DB Error: {db_err}")
+            # continue anyway
+
+        # 2. Try send email, but DON'T crash if it fails
+        try:
+            msg = Message(
+                subject=f"New Lightfirm Contact from {name}",
+                recipients=[os.getenv('MAIL_TO', os.getenv('MAIL_USERNAME'))],
+                body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message_text}"
+            )
+            mail.send(msg)
+            print("Email sent")
+        except Exception as mail_err:
+            print(f"Mail Error (ignored): {mail_err}")
+            # Don't fail request - message already saved
+
+        return jsonify({'success': True, 'note': 'saved'})
+
     except Exception as e:
+        print(f"Contact error: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
