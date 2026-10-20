@@ -169,5 +169,23 @@ def send_contact():
         print("CONTACT ERROR:", str(e))
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/messages')
+@login_required
+def get_messages():
+    try:
+        res = supabase_admin.table('contact_messages').select('*').order('created_at', desc=True).execute()
+        return jsonify(res.data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/messages/<id>', methods=['DELETE'])
+@login_required
+def delete_message(id):
+    try:
+        supabase_admin.table('contact_messages').delete().eq('id', id).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

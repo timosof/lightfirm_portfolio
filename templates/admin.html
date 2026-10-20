@@ -6,13 +6,15 @@
     <title>Admin - Lightfirm</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
     <style>
-      /* FORCE UNIFORM ADMIN IMAGES - NO CACHE ISSUE */
       .admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;margin-top:20px}
       .admin-card{background:#151525;border-radius:16px;overflow:hidden;border:1px solid #23233a}
       .admin-card img{width:100% !important;height:200px !important;object-fit:cover !important;display:block}
       .admin-card .card-info{padding:12px}
       .admin-card .actions{margin-top:10px}
       .admin-card .actions button{width:100%;padding:8px;border-radius:8px;border:1px solid #ff4e4e;background:transparent;color:#ff4e4e;cursor:pointer}
+      .tab-buttons{display:flex;gap:10px;margin:30px 0 20px}
+      .tab-btn{padding:10px 20px;border-radius:20px;border:1px solid #333;background:#111;color:#fff;cursor:pointer}
+      .tab-btn.active{background:#fff;color:#000;font-weight:700}
       @media(max-width:768px){
         .admin-grid{grid-template-columns:1fr 1fr;gap:10px}
         .admin-card img{height:140px !important}
@@ -33,11 +35,11 @@
         </div>
     </nav>
 
-    <div class="admin-container">
+    <div class="admin-container" style="max-width:1100px;margin:0 auto;padding:20px">
         <h2>Upload New Work</h2>
-        <form id="uploadForm" enctype="multipart/form-data">
-            <input type="text" name="title" id="title" placeholder="Project Title e.g. 【entity-Nike¦canonical_name=Nike】 Logo" required>
-            <select name="category" id="category" required>
+        <form id="uploadForm" enctype="multipart/form-data" style="max-width:500px;display:flex;flex-direction:column;gap:12px;margin-top:15px">
+            <input type="text" name="title" id="title" placeholder="Project Title e.g. 【entity-Nike¦canonical_name=Nike】 Logo" required style="padding:12px;border-radius:8px;border:1px solid #333;background:#111;color:#fff">
+            <select name="category" id="category" required style="padding:12px;border-radius:8px;border:1px solid #333;background:#111;color:#fff">
                 <option value="">Select Category</option>
                 <option value="Logo">Logo</option>
                 <option value="Flyer">Flyer</option>
@@ -47,17 +49,77 @@
                 <option value="Other">Other</option>
             </select>
             <input type="file" name="image" id="image" accept="image/*" required>
-            <button type="submit" class="btn-primary" id="uploadBtn">Upload</button>
+            <button type="submit" class="btn-primary" id="uploadBtn" style="padding:12px;background:#ff4d5a;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">Upload</button>
             <p id="uploadStatus"></p>
         </form>
 
-        <hr style="margin:30px 0;border:0;border-top:1px solid #23233a">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="showTab('works')">Your Works</button>
+            <button class="tab-btn" onclick="showTab('inbox')">Inbox <span id="msgCount" style="background:#ff4d5a;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;margin-left:5px">0</span></button>
+        </div>
 
-        <h2>Your Works</h2>
-        <div id="adminGrid" class="admin-grid"></div>
+        <div id="worksTab">
+            <div id="adminGrid" class="admin-grid"></div>
+        </div>
+
+        <div id="inboxTab" style="display:none">
+            <div id="messagesList" style="display:flex;flex-direction:column;gap:15px;margin-top:10px">
+                <p style="color:#888">Loading messages...</p>
+            </div>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+      function showTab(tab){
+        document.getElementById('worksTab').style.display = tab==='works' ? 'block' : 'none';
+        document.getElementById('inboxTab').style.display = tab==='inbox' ? 'block' : 'none';
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        event.target.classList.add('active');
+        if(tab==='inbox') loadMessages();
+      }
+
+      async function loadMessages(){
+        const list = document.getElementById('messagesList');
+        try{
+          const res = await fetch('/api/messages');
+          const data = await res.json();
+          document.getElementById('msgCount').textContent = data.length;
+          if(!data.length){
+            list.innerHTML = '<p style="color:#888;padding:20px;text-align:center">No messages yet. Share your contact link!</p>';
+            return;
+          }
+          list.innerHTML = data.map(m => `
+            <div style="background:#151525;border:1px solid #23233a;padding:18px;border-radius:12px">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+                <b>${m.name}</b>
+                <small style="color:#888">${new Date(m.created_at).toLocaleString()}</small>
+              </div>
+              <div style="color:#ff4d5a;font-size:13px;margin:5px 0">${m.email}</div>
+              <p style="margin:12px 0;color:#ddd;line-height:1.6;white-space:pre-wrap">${m.message}</p>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <a href="mailto:${m.email}?subject=Re: Lightfirm Inquiry - ${m.name}&body=Hi ${m.name},%0D%0A%0D%0AThanks for reaching out!" style="background:#fff;color:#000;padding:7px 16px;border-radius:20px;text-decoration:none;font-size:13px;font-weight:600">Reply via Email</a>
+                <a href="https://wa.me/${m.message.match(/\\d+/) ? '' : ''}" target="_blank" style="display:none"></a>
+                <button onclick="deleteMsg('${m.id}')" style="background:transparent;color:#ff4d5a;border:1px solid #333;padding:7px 16px;border-radius:20px;cursor:pointer;font-size:13px">Delete</button>
+              </div>
+            </div>
+          `).join('');
+        }catch(err){
+          list.innerHTML = '<p style="color:#ff4d5a">Failed: '+err.message+'</p>';
+        }
+      }
+
+      async function deleteMsg(id){
+        if(!confirm('Delete this message permanently?')) return;
+        await fetch('/api/messages/'+id, {method:'DELETE'});
+        loadMessages();
+      }
+
+      // Load inbox count on page load
+      fetch('/api/messages').then(r=>r.json()).then(d=>{
+        document.getElementById('msgCount').textContent = d.length;
+      }).catch(()=>{});
+    </script>
 </body>
 </html>
