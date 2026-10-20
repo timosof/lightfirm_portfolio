@@ -145,42 +145,42 @@ def delete_portfolio(id):
 @app.route('/api/contact', methods=['POST'])
 def send_contact():
     try:
-        data = request.get_json()
-        name = data.get('name')
-        email = data.get('email')
-        message_text = data.get('message')
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            # fallback if sent as form-data
+            data = request.form
+        
+        name = (data.get('name') or '').strip()
+        email = (data.get('email') or '').strip()
+        message_text = (data.get('message') or '').strip()
 
         if not name or not email or not message_text:
             return jsonify({'error': 'All fields required'}), 400
 
-        # 1. Save to Supabase FIRST (must succeed)
+        # Save
         try:
             supabase_admin.table('contact_messages').insert({
-                "name": name,
-                "email": email,
-                "message": message_text
+                "name": name, "email": email, "message": message_text
             }).execute()
         except Exception as db_err:
-            print(f"DB Error: {db_err}")
-            # continue anyway
+            print("DB save failed:", db_err)
 
-        # 2. Try send email, but DON'T crash if it fails
+        # Send email (optional - don't crash)
         try:
-            msg = Message(
-                subject=f"New Lightfirm Contact from {name}",
-                recipients=[os.getenv('MAIL_TO', os.getenv('MAIL_USERNAME'))],
-                body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message_text}"
-            )
-            mail.send(msg)
-            print("Email sent")
+            if app.config.get('MAIL_USERNAME'):
+                msg = Message(
+                    subject=f"New Message from {name}",
+                    recipients=[os.getenv('MAIL_TO', os.getenv('MAIL_USERNAME'))],
+                    body=f"From: {name} <{email}>\n\n{message_text}"
+                )
+                mail.send(msg)
         except Exception as mail_err:
-            print(f"Mail Error (ignored): {mail_err}")
-            # Don't fail request - message already saved
+            print("Mail failed:", mail_err)
 
-        return jsonify({'success': True, 'note': 'saved'})
+        return jsonify({'success': True})
 
     except Exception as e:
-        print(f"Contact error: {e}")
+        print("CONTACT CRASH:", str(e))
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
