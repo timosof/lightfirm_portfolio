@@ -36,49 +36,52 @@
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
     <script>
-    // CONTACT FORM - MAKE IT SEND REAL MESSAGE
-    document.getElementById('contactForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = e.target.querySelector('button');
-      const status = document.getElementById('contactStatus');
-      
-      const originalText = btn.textContent;
-      btn.textContent = 'Sending...';
-      btn.disabled = true;
-      status.textContent = '';
-      status.style.color = '#888';
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  const status = document.getElementById('contactStatus');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  status.textContent = 'Checking...';
 
-      const payload = {
-        name: document.getElementById('c_name').value.trim(),
-        email: document.getElementById('c_email').value.trim(),
-        message: document.getElementById('c_message').value.trim()
-      };
+  const payload = {
+    name: document.getElementById('c_name').value.trim(),
+    email: document.getElementById('c_email').value.trim(),
+    message: document.getElementById('c_message').value.trim()
+  };
 
-      try {
-        const res = await fetch('/api/contact', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(payload)
-        });
-
-        const result = await res.json();
-
-        if (res.ok && result.success) {
-          status.style.color = '#00ff88';
-          status.textContent = '✅ Message sent! We will reply to ' + payload.email + ' soon.';
-          document.getElementById('contactForm').reset();
-        } else {
-          status.style.color = '#ff4d5a';
-          status.textContent = '❌ ' + (result.error || 'Failed to send. Try again.');
-        }
-      } catch (err) {
-        status.style.color = '#ff4d5a';
-        status.textContent = '❌ Network error: ' + err.message;
-      }
-
-      btn.textContent = originalText;
-      btn.disabled = false;
+  try {
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
     });
-    </script>
+
+    const text = await res.text(); // get raw HTML first
+    console.log("RAW RESPONSE:", text);
+    
+    try {
+      const result = JSON.parse(text);
+      if(result.success){
+        status.style.color = '#00ff88';
+        status.textContent = '✅ Message sent!';
+        e.target.reset();
+      } else {
+        status.style.color = '#ff4d5a';
+        status.textContent = '❌ ' + (result.error || 'Failed');
+      }
+    } catch {
+      // If not JSON, show first 300 chars of HTML
+      status.style.color = '#ff4d5a';
+      status.innerHTML = '❌ Server returned HTML, not JSON:<br><small style="color:#aaa">' + text.substring(0, 500) + '</small>';
+      console.error(text);
+    }
+  } catch(err){
+    status.textContent = '❌ Network error: ' + err.message;
+  }
+  btn.textContent = 'Send Message';
+  btn.disabled = false;
+});
+</script>
 </body>
 </html>
