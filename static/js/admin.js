@@ -26,7 +26,7 @@ async function loadAdminWorks(){
 async function deleteItem(id){
   if(!confirm('Delete this work?')) return;
   try{
-    const res = await fetch(`/api/portfolios/${id}`, {method:'DELETE'});
+    const res = await fetch(`/api/delete/${id}`, {method:'DELETE'});
     const d = await res.json();
     if(d.success) loadAdminWorks(); else alert('Failed: '+d.error);
   }catch(e){ alert('Error deleting'); }
