@@ -3,20 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lightfirm - Creative Graphic Studio</title>
+    <title>About - Lightfirm</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+      .about-hero{text-align:center;padding:80px 20px 40px;max-width:800px;margin:0 auto}
+      .about-hero h1{font-size:48px;line-height:1.1;margin-bottom:15px}
+      .about-hero h1 span{color:#ff4d5a}
+      .about-hero p{color:#888;font-size:18px;line-height:1.6}
+      .about-grid{display:flex;gap:50px;align-items:center;max-width:1000px;margin:50px auto;padding:0 20px;flex-wrap:wrap;justify-content:center}
+      .about-image-wrap{position:relative}
+      .about-image-wrap img{width:320px;height:320px;border-radius:24px;object-fit:cover;border:1px solid #23233a;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+      .about-image-wrap::after{content:'';position:absolute;top:15px;left:15px;width:100%;height:100%;border:2px solid #ff4d5a;border-radius:24px;z-index:-1}
+      .about-text{flex:1;min-width:300px}
+      .about-text h2{font-size:32px;margin-bottom:15px}
+      .about-text p{color:#aaa;line-height:1.7;margin-bottom:12px}
+      .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+      .tool-tag{background:#151525;border:1px solid #23233a;padding:6px 14px;border-radius:20px;font-size:13px;color:#ccc}
+      .stats{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin:60px auto;max-width:800px;padding:0 20px}
+      .stat{text-align:center;background:#111;border:1px solid #222;padding:25px 30px;border-radius:16px;flex:1;min-width:150px}
+      .stat h3{font-size:32px;color:#fff}
+      .stat p{color:#888;margin-top:5px;font-size:14px}
+      @media(max-width:768px){.about-hero h1{font-size:32px}.about-image-wrap img{width:260px;height:260px}}
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">LIGHTFIRM</div>
         <div class="hamburger" id="hamburger">☰</div>
         <div class="nav-links" id="navLinks">
-            <a href="/" class="active">Home</a>
+            <a href="/">Home</a>
             <a href="/portfolio">Portfolio</a>
-            <a href="/about">About</a>
+            <a href="/about" class="active">About</a>
             <a href="/contact">Contact</a>
             <a href="/login" class="btn-small">Admin</a>
-            </div>
+        </div>
     </nav>
 
     <section class="about-hero">
@@ -25,10 +45,12 @@
     </section>
 
     <div class="about-grid">
-        <div class="about-image">✨</div>
+        <div class="about-image-wrap">
+            <img src="/static/images/me.jpeg" alt="Timothy - Lightfirm Founder" onerror="this.src='https://via.placeholder.com/320x320/151525/ff4d5a?text=Upload+Me.jpg'">
+        </div>
         <div class="about-text">
             <h2>Built on Creativity & Function</h2>
-            <p>Founded with the idea that design should be both beautiful and functional, we have worked with startups, small businesses, and personal brands to transform their identity.</p>
+            <p>Hi, I'm Timothy — founder of Lightfirm. Founded with the idea that design should be both beautiful and functional, I've worked with startups, small businesses, and personal brands to transform their identity.</p>
             <p>Every project is crafted with attention to detail, strategy, and that signature Lightfirm glow that makes your brand unforgettable.</p>
             
             <div class="tools">
@@ -37,6 +59,7 @@
                 <span class="tool-tag">CorelDraw</span>
                 <span class="tool-tag">Figma</span>
                 <span class="tool-tag">After Effects</span>
+                <span class="tool-tag">Vs Code</span>
             </div>
         </div>
     </div>
@@ -48,5 +71,6 @@
     </div>
 
     <footer style="text-align:center;padding:40px;color:#555">© 2026 Lightfirm</footer>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
