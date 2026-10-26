@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analytics - Lightfirm</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">LIGHTFIRM</div>
+        <div class="hamburger" id="hamburger">☰</div>
+        <div class="nav-links" id="navLinks">
+            <a href="/">Home</a>
+            <a href="/portfolio">Graphics</a>
+            <a href="/analytics" class="active">Analytics</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+            <a href="/login" class="btn-small">Admin</a>
+        </div>
+    </nav>
+
+    <section class="analytics-hero">
+        <h1>Turning Data Into <span>Decisions</span></h1>
+        <p style="color:#888;margin-top:10px">Excel • SQL • Power BI • Tableau • Python — Click any card to view live data.</p>
+        <div class="filters">
+            <button class="f-btn active" data-filter="All">All</button>
+            <button class="f-btn" data-filter="Power BI">Power BI</button>
+            <button class="f-btn" data-filter="Excel">Excel</button>
+            <button class="f-btn" data-filter="Python">Python</button>
+            <button class="f-btn" data-filter="SQL">SQL</button>
+            <button class="f-btn" data-filter="Tableau">Tableau</button>
+        </div>
+    </section>
+
+    <div id="analyticsGrid" class="analytics-grid">
+        <p style="color:#888;text-align:center;grid-column:1/-1">Loading projects...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+    async function loadAnalytics(){
+      const grid = document.getElementById('analyticsGrid');
+      try{
+        const res = await fetch('/api/analytics');
+        const data = await res.json();
+        const render = (items)=>{
+          if(!items.length){
+            grid.innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1">No analytics projects yet. Upload from Admin → Analytics Tab.</p>';
+            return;
+          }
+          grid.innerHTML = items.map(p=>`
+            <a href="/analytics/${p.id}" style="text-decoration:none;color:inherit">
+              <div class="a-card">
+                <img src="${p.image_url}" alt="${p.title}">
+                <div class="a-body">
+                  <h3 style="color:#fff;margin-bottom:5px">${p.title}</h3>
+                  <div class="a-tools">${p.tools.split(',').map(t=>`<span class="a-tag">${t.trim()}</span>`).join('')}</div>
+                  <p style="color:#888;font-size:13px;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.description || ''}</p>
+                </div>
+              </div>
+            </a>
+          `).join('');
+        };
+        render(data);
+        document.querySelectorAll('.f-btn').forEach(btn=>{
+          btn.addEventListener('click',()=>{
+            document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            const f = btn.dataset.filter;
+            if(f==='All') render(data);
+            else render(data.filter(x=>x.tools.toLowerCase().includes(f.toLowerCase())));
+          });
+        });
+      }catch(e){
+        grid.innerHTML = '<p style="color:#ff4d5a">Failed to load: '+e.message+'</p>';
+      }
+    }
+    loadAnalytics();
+    </script>
+</body>
+</html>

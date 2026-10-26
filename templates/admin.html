@@ -4,23 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Lightfirm</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
-    <style>
-      .admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;margin-top:20px}
-      .admin-card{background:#151525;border-radius:16px;overflow:hidden;border:1px solid #23233a}
-      .admin-card img{width:100% !important;height:200px !important;object-fit:cover !important;display:block}
-      .admin-card .card-info{padding:12px}
-      .admin-card .actions{margin-top:10px}
-      .admin-card .actions button{width:100%;padding:8px;border-radius:8px;border:1px solid #ff4e4e;background:transparent;color:#ff4e4e;cursor:pointer}
-      .tab-buttons{display:flex;gap:10px;margin:30px 0 20px}
-      .tab-btn{padding:10px 20px;border-radius:20px;border:1px solid #333;background:#111;color:#fff;cursor:pointer}
-      .tab-btn.active{background:#fff;color:#000;font-weight:700}
-      @media(max-width:768px){
-        .admin-grid{grid-template-columns:1fr 1fr;gap:10px}
-        .admin-card img{height:140px !important}
-      }
-    </style>
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
     <link rel="icon" type="image/jpeg" href="/static/images/me.jpeg">
 </head>
 <body>
@@ -29,7 +13,8 @@
         <div class="hamburger" id="hamburger">☰</div>
         <div class="nav-links" id="navLinks">
             <a href="/">Home</a>
-            <a href="/portfolio">Portfolio</a>
+            <a href="/portfolio">Graphics</a>
+            <a href="/analytics">Analytics</a>
             <a href="/about">About</a>
             <a href="/contact">Contact</a>
             <a href="/admin" class="active">Admin</a>
@@ -37,33 +22,57 @@
         </div>
     </nav>
 
-    <div class="admin-container" style="max-width:1100px;margin:0 auto;padding:20px">
+    <div class="admin-container">
         <h2>Upload New Work</h2>
-        <form id="uploadForm" enctype="multipart/form-data" style="max-width:500px;display:flex;flex-direction:column;gap:12px;margin-top:15px">
-            <input type="text" name="title" id="title" placeholder="Project Title e.g. 【entity-Nike¦canonical_name=Nike】 Logo" required style="padding:12px;border-radius:8px;border:1px solid #333;background:#111;color:#fff">
-            <select name="category" id="category" required style="padding:12px;border-radius:8px;border:1px solid #333;background:#111;color:#fff">
-                <option value="">Select Category</option>
-                <option value="Logo">Logo</option>
-                <option value="Flyer">Flyer</option>
-                <option value="Brand Identity">Brand Identity</option>
-                <option value="Poster">Poster</option>
-                <option value="Social Media">Social Media</option>
-                <option value="Other">Other</option>
-            </select>
-            <input type="file" name="image" id="image" accept="image/*" required>
-            <button type="submit" class="btn-primary" id="uploadBtn" style="padding:12px;background:#ff4d5a;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">Upload</button>
-            <p id="uploadStatus"></p>
-        </form>
 
         <div class="tab-buttons">
-            <button class="tab-btn active" onclick="showTab('works')">Your Works</button>
-            <button class="tab-btn" onclick="showTab('inbox')">Inbox <span id="msgCount" style="background:#ff4d5a;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;margin-left:5px">0</span></button>
+            <button class="tab-btn active" data-tab="works" onclick="showTab('works', this)">Your Works</button>
+            <button class="tab-btn" data-tab="analytics" onclick="showTab('analytics', this)">Analytics <span style="background:#00ff88;color:#000;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:5px">NEW</span></button>
+            <button class="tab-btn" data-tab="inbox" onclick="showTab('inbox', this)">Inbox <span id="msgCount" style="background:#ff4d5a;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;margin-left:5px">0</span></button>
         </div>
 
+        <!-- GRAPHICS TAB -->
         <div id="worksTab">
+            <form id="uploadForm" class="admin-form" enctype="multipart/form-data">
+                <input type="text" name="title" id="title" placeholder="Project Title e.g. 【entity-Nike¦canonical_name=Nike】 Logo" required>
+                <select name="category" id="category" required>
+                    <option value="">Select Category</option>
+                    <option value="Logo">Logo</option>
+                    <option value="Flyer">Flyer</option>
+                    <option value="Brand Identity">Brand Identity</option>
+                    <option value="Poster">Poster</option>
+                    <option value="Social Media">Social Media</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="file" name="image" id="image" accept="image/*" required>
+                <button type="submit" class="btn-primary" id="uploadBtn">Upload Graphics</button>
+                <p id="uploadStatus"></p>
+            </form>
             <div id="adminGrid" class="admin-grid"></div>
         </div>
 
+        <!-- ANALYTICS TAB -->
+        <div id="analyticsTab" style="display:none">
+            <form id="analyticsForm" class="admin-form" enctype="multipart/form-data">
+                <h3 style="color:#fff">Upload Analytics Project - LIVE Data</h3>
+                <input type="text" name="title" placeholder="Title e.g Superstore Sales Dashboard" required>
+                <input type="text" name="tools" placeholder="Tools e.g Power BI, Excel, Python, SQL" required>
+                <textarea name="description" placeholder="Project Overview - Business Problem" rows="3"></textarea>
+                <textarea name="insights" placeholder="Key Insights e.g Sales grew 25%..." rows="3"></textarea>
+                <label>Dashboard Screenshot (required)</label>
+                <input type="file" name="image" accept="image/*" required>
+                <label>Dataset File - Excel/CSV for LIVE table view (optional)</label>
+                <input type="file" name="dataset" accept=".xlsx,.xls,.csv">
+                <input type="text" name="embed_code" placeholder="Power BI / Tableau EMBED LINK (for live iframe)">
+                <input type="text" name="dashboard_link" placeholder="Dashboard Share Link (optional)">
+                <input type="text" name="github_link" placeholder="GitHub Link for Python/SQL code">
+                <button type="submit" class="btn-analytics" id="analyticsBtn">Upload Analytics Project</button>
+                <p id="analyticsStatus"></p>
+            </form>
+            <div id="analyticsAdminGrid" class="admin-grid"></div>
+        </div>
+
+        <!-- INBOX TAB -->
         <div id="inboxTab" style="display:none">
             <div id="messagesList" style="display:flex;flex-direction:column;gap:15px;margin-top:10px">
                 <p style="color:#888">Loading messages...</p>
@@ -74,14 +83,73 @@
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
-      function showTab(tab){
+      function showTab(tab, btn){
         document.getElementById('worksTab').style.display = tab==='works' ? 'block' : 'none';
+        document.getElementById('analyticsTab').style.display = tab==='analytics' ? 'block' : 'none';
         document.getElementById('inboxTab').style.display = tab==='inbox' ? 'block' : 'none';
         document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-        event.target.classList.add('active');
+        if(btn) btn.classList.add('active');
         if(tab==='inbox') loadMessages();
+        if(tab==='analytics') loadAnalyticsAdmin();
       }
 
+      // --- ANALYTICS ADMIN ---
+      async function loadAnalyticsAdmin(){
+        const grid = document.getElementById('analyticsAdminGrid');
+        try{
+          const res = await fetch('/api/analytics');
+          const data = await res.json();
+          if(!data.length){
+            grid.innerHTML = '<p style="color:#888;grid-column:1/-1;text-align:center">No analytics projects yet.</p>';
+            return;
+          }
+          grid.innerHTML = data.map(p=>`
+            <div class="admin-card">
+              <img src="${p.image_url}" alt="${p.title}">
+              <div class="card-info">
+                <p>${p.title}</p>
+                <small>${p.tools}</small>
+                <small style="display:block;color:${p.dataset_url ? '#00ff88' : '#666'};margin-top:4px">${p.dataset_url ? '✓ LIVE dataset' : 'No dataset'}</small>
+                <div class="actions">
+                  <button onclick="deleteAnalytics('${p.id}')">Delete</button>
+                  <a href="/analytics/${p.id}" target="_blank" class="view-link">View Live</a>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }catch(e){ grid.innerHTML = '<p style="color:#ff4d5a">Failed to load analytics</p>'; }
+      }
+
+      document.getElementById('analyticsForm').addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const btn = document.getElementById('analyticsBtn');
+        const status = document.getElementById('analyticsStatus');
+        btn.textContent='Uploading...'; btn.disabled=true; status.textContent='';
+        try{
+          const fd = new FormData(e.target);
+          const res = await fetch('/api/analytics/upload', {method:'POST', body:fd});
+          const out = await res.json();
+          if(out.success){
+            status.textContent='✓ Analytics uploaded! Live data ready!'; status.style.color='#00ff88';
+            e.target.reset(); loadAnalyticsAdmin();
+          } else {
+            status.textContent='Error: '+out.error; status.style.color='#ff4d5a';
+          }
+        }catch(err){
+          status.textContent=err.message; status.style.color='#ff4d5a';
+        }
+        btn.textContent='Upload Analytics Project'; btn.disabled=false;
+      });
+
+      async function deleteAnalytics(id){
+        if(!confirm('Delete this analytics project?')) return;
+        const res = await fetch('/api/analytics/delete/'+id, {method:'DELETE'});
+        const out = await res.json();
+        if(out.success) loadAnalyticsAdmin();
+        else alert(out.error);
+      }
+
+      // --- MESSAGES ---
       async function loadMessages(){
         const list = document.getElementById('messagesList');
         try{
@@ -102,7 +170,6 @@
               <p style="margin:12px 0;color:#ddd;line-height:1.6;white-space:pre-wrap">${m.message}</p>
               <div style="display:flex;gap:8px;margin-top:12px">
                 <a href="mailto:${m.email}?subject=Re: Lightfirm Inquiry - ${m.name}&body=Hi ${m.name},%0D%0A%0D%0AThanks for reaching out!" style="background:#fff;color:#000;padding:7px 16px;border-radius:20px;text-decoration:none;font-size:13px;font-weight:600">Reply via Email</a>
-                <a href="https://wa.me/${m.message.match(/\\d+/) ? '' : ''}" target="_blank" style="display:none"></a>
                 <button onclick="deleteMsg('${m.id}')" style="background:transparent;color:#ff4d5a;border:1px solid #333;padding:7px 16px;border-radius:20px;cursor:pointer;font-size:13px">Delete</button>
               </div>
             </div>
@@ -118,7 +185,6 @@
         loadMessages();
       }
 
-      // Load inbox count on page load
       fetch('/api/messages').then(r=>r.json()).then(d=>{
         document.getElementById('msgCount').textContent = d.length;
       }).catch(()=>{});

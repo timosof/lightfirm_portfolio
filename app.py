@@ -186,6 +186,112 @@ def delete_message(id):
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+# ========== ANALYTICS ROUTES ==========
+
+@app.route('/analytics')
+def analytics():
+    return render_template('analytics.html')
+
+@app.route('/analytics/<id>')
+def analytics_detail(id):
+    try:
+        res = supabase.table('analytics_projects').select('*').eq('id', id).single().execute()
+        if not res.data:
+            return "Project not found", 404
+        return render_template('analytics_detail.html', project=res.data)
+    except Exception as e:
+        return f"Error: {e}", 500
+
+@app.route('/api/analytics')
+def get_analytics():
+    try:
+        res = supabase.table('analytics_projects').select('*').order('created_at', desc=True).execute()
+        return jsonify(res.data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/<id>')
+def get_single_analytics(id):
+    try:
+        res = supabase.table('analytics_projects').select('*').eq('id', id).single().execute()
+        return jsonify(res.data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/upload', methods=['POST'])
+@login_required
+def upload_analytics():
+    try:
+        title = request.form.get('title')
+        tools = request.form.get('tools')
+        description = request.form.get('description')
+        insights = request.form.get('insights')
+        dashboard_link = request.form.get('dashboard_link')
+        github_link = request.form.get('github_link')
+        embed_code = request.form.get('embed_code')
+        image_file = request.files.get('image')
+        dataset_file = request.files.get('dataset')
+
+        if not title or not tools or not image_file:
+            return jsonify({'error': 'Title, tools and dashboard image required'}), 400
+
+        # Upload dashboard image
+        img_name = f"{uuid.uuid4().hex}_{secure_filename(image_file.filename)}"
+        supabase_admin.storage.from_(SUPABASE_BUCKET).upload(
+            path=img_name, file=image_file.read(),
+            file_options={"content-type": image_file.content_type}
+        )
+        image_url = supabase_admin.storage.from_(SUPABASE_BUCKET).get_public_url(img_name)
+
+        dataset_url = None
+        dataset_type = None
+        if dataset_file and dataset_file.filename:
+            ds_name = f"dataset_{uuid.uuid4().hex}_{secure_filename(dataset_file.filename)}"
+            dataset_type = dataset_file.filename.split('.')[-1].lower()
+            supabase_admin.storage.from_(SUPABASE_BUCKET).upload(
+                path=ds_name, file=dataset_file.read(),
+                file_options={"content-type": dataset_file.content_type}
+            )
+            dataset_url = supabase_admin.storage.from_(SUPABASE_BUCKET).get_public_url(ds_name)
+
+        supabase_admin.table('analytics_projects').insert({
+            "title": title,
+            "tools": tools,
+            "description": description,
+            "insights": insights,
+            "image_url": image_url,
+            "dashboard_link": dashboard_link,
+            "github_link": github_link,
+            "embed_code": embed_code,
+            "dataset_url": dataset_url,
+            "dataset_type": dataset_type
+        }).execute()
+
+        return jsonify({'success': True})
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analytics/delete/<id>', methods=['DELETE'])
+@login_required
+def delete_analytics(id):
+    try:
+        item = supabase_admin.table('analytics_projects').select('*').eq('id', id).single().execute()
+        if item.data:
+            fname = item.data['image_url'].split('/')[-1]
+            try:
+                supabase_admin.storage.from_(SUPABASE_BUCKET).remove([fname])
+            except: pass
+            if item.data.get('dataset_url'):
+                try:
+                    ds_fname = item.data['dataset_url'].split('/')[-1]
+                    supabase_admin.storage.from_(SUPABASE_BUCKET).remove([ds_fname])
+                except: pass
+            supabase_admin.table('analytics_projects').delete().eq('id', id).execute()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
