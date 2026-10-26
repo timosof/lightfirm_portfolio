@@ -46,7 +46,7 @@
         const data = await res.json();
         const render = (items)=>{
           if(!items.length){
-            grid.innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1">No analytics projects yet. Upload from Admin → Analytics Tab.</p>';
+            grid.innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1">No analytics projects yet. </p>';
             return;
           }
           grid.innerHTML = items.map(p=>`
