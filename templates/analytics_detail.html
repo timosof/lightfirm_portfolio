@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.title }} - Lightfirm Analytics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">LIGHTFIRM</div>
+        <div class="nav-links">
+            <a href="/analytics">← Back to Analytics</a>
+        </div>
+    </nav>
+
+    <div class="detail-hero">
+        <a href="/analytics" class="back-link">← Back to Analytics</a>
+        <h1 class="detail-title">{{ project.title }}</h1>
+        <div style="margin:15px 0">
+            {% for t in project.tools.split(',') %}
+            <span class="detail-tag">{{ t.strip() }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="detail-grid">
+            <div>
+                <img src="{{ project.image_url }}" class="detail-main-img" alt="{{ project.title }}">
+
+                <div class="live-box">
+                    <h3>📊 Project Overview</h3>
+                    <p style="color:#aaa;line-height:1.7">{{ project.description or 'No description added.' }}</p>
+                    {% if project.insights %}
+                    <h3 style="margin-top:25px">💡 Key Insights</h3>
+                    <p style="color:#ccc;white-space:pre-wrap;line-height:1.7">{{ project.insights }}</p>
+                    {% endif %}
+                </div>
+
+                {% if project.dataset_url %}
+                <div class="live-box">
+                    <h3>📂 Live Data View</h3>
+                    <p style="color:#888;font-size:13px;margin-bottom:15px">Interactive table — live from your Excel/CSV.</p>
+                    <div id="liveData" class="data-table-wrap" style="padding:20px;color:#888">Loading live data...</div>
+                    <a href="{{ project.dataset_url }}" download class="btn-download">Download Dataset</a>
+                </div>
+                {% endif %}
+
+                {% if project.embed_code or project.dashboard_link %}
+                <div class="live-box">
+                    <h3>📈 Live Dashboard</h3>
+                    {% if project.embed_code %}
+                    <iframe src="{{ project.embed_code }}" class="embed-frame" allowfullscreen></iframe>
+                    {% else %}
+                    <iframe src="{{ project.dashboard_link }}" class="embed-frame" allowfullscreen></iframe>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div>
+                <div class="live-box">
+                    <h3>Tools Used</h3>
+                    <div style="margin-top:10px">
+                        {% for t in project.tools.split(',') %}
+                        <span class="detail-tag">{{ t.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% if project.github_link %}
+                    <a href="{{ project.github_link }}" target="_blank" class="btn-github">View Code on GitHub</a>
+                    {% endif %}
+                    {% if project.dataset_url %}
+                    <a href="{{ project.dataset_url }}" target="_blank" class="btn-github" style="background:#00ff88;color:#000;border-color:#00ff88;font-weight:700">Download Raw Data</
