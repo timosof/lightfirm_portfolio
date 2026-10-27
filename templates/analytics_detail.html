@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ project.title }} - Lightfirm Analytics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">LIGHTFIRM</div>
         <div class="nav-links">
-            <a href="/analytics">← Back to Analytics</a>
+            <a href="/">Home</a>
+            <a href="/portfolio">Graphics</a>
+            <a href="/analytics" class="active">Analytics</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
         </div>
     </nav>
 
@@ -45,16 +49,19 @@
                 </div>
                 {% endif %}
 
-                {% if project.embed_code or project.dashboard_link %}
+                {% if project.embed_code %}
                 <div class="live-box">
                     <h3>📈 Live Dashboard</h3>
-                    {% if project.embed_code %}
                     <iframe src="{{ project.embed_code }}" class="embed-frame" allowfullscreen></iframe>
-                    {% else %}
+                </div>
+                {% elif project.dashboard_link %}
+                <div class="live-box">
+                    <h3>📈 Live Dashboard</h3>
                     <iframe src="{{ project.dashboard_link }}" class="embed-frame" allowfullscreen></iframe>
-                    {% endif %}
+                    <p style="margin-top:10px"><a href="{{ project.dashboard_link }}" target="_blank" style="color:#00ff88">Open full dashboard →</a></p>
                 </div>
                 {% endif %}
+
             </div>
 
             <div>
@@ -66,7 +73,62 @@
                         {% endfor %}
                     </div>
                     {% if project.github_link %}
-                    <a href="{{ project.github_link }}" target="_blank" class="btn-github">View Code on GitHub</a>
+                    <a href="{{ project.github_link }}" target="_blank" class="btn-【entity-github¦canonical_name=GitHub】">View Code on 【entity-GitHub¦canonical_name=GitHub】</a>
                     {% endif %}
                     {% if project.dataset_url %}
-                    <a href="{{ project.dataset_url }}" target="_blank" class="btn-github" style="background:#00ff88;color:#000;border-color:#00ff88;font-weight:700">Download Raw Data</
+                    <a href="{{ project.dataset_url }}" target="_blank" class="btn-【entity-github¦canonical_name=GitHub】" style="background:#00ff88;color:#000;border-color:#00ff88;font-weight:700">Download Raw Data</a>
+                    {% endif %}
+                </div>
+
+                <div class="live-box">
+                    <h3>About This Analysis</h3>
+                    <p style="color:#888;font-size:13px;line-height:1.6">This project was analyzed using {{ project.tools }}. All data visualization and insights are displayed live on this website.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pageData" data-dataset-url="{{ project.dataset_url or '' }}" style="display:none"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+    (function(){
+      var dataDiv = document.getElementById('pageData');
+      var datasetUrl = dataDiv.getAttribute('data-dataset-url');
+      if(!datasetUrl) return;
+      var container = document.getElementById('liveData');
+      if(!container) return;
+      async function loadLiveData(){
+        try{
+          var res = await fetch(datasetUrl);
+          var blob = await res.blob();
+          var data = await blob.arrayBuffer();
+          var workbook = XLSX.read(data, {type:'array'});
+          var sheet = workbook.Sheets[workbook.SheetNames[0]];
+          var json = XLSX.utils.sheet_to_json(sheet, {header:1});
+          if(!json.length){ container.innerHTML='Empty sheet'; return; }
+          var html = '<table class="data-table"><thead><tr>';
+          json[0].forEach(function(h){ html += '<th>' + h + '</th>'; });
+          html+='</tr></thead><tbody>';
+          json.slice(1,101).forEach(function(row){
+            html+='<tr>';
+            json[0].forEach(function(_,i){
+              var val = row[i] !== undefined ? row[i] : '';
+              html+='<td>' + val + '</td>';
+            });
+            html+='</tr>';
+          });
+          html+='</tbody></table>';
+          if(json.length>101){
+            html+='<p style="color:#888;font-size:12px;margin-top:10px;padding:10px">Showing first 100 rows of '+(json.length-1)+'. Download full file.</p>';
+          }
+          container.innerHTML = html;
+        }catch(e){
+          container.innerHTML = 'Failed to load live preview: '+e.message;
+        }
+      }
+      loadLiveData();
+    })();
+    </script>
+</body>
+</html>
