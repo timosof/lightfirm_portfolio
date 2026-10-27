@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ project.title }} - Lightfirm Analytics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=13">
+    <style>
+      /* Lightbox */
+      #lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;justify-content:center;align-items:center;padding:20px;cursor:zoom-out}
+      #lightbox.active{display:flex}
+      #lightbox img{max-width:95%;max-height:95%;object-fit:contain;border-radius:8px;box-shadow:0 0 40px rgba(0,0,0,0.8)}
+      #lightboxClose{position:absolute;top:20px;right:30px;color:#fff;font-size:40px;cursor:pointer}
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -27,71 +34,88 @@
             {% endfor %}
         </div>
 
-        <div class="detail-grid">
-            <div>
-                <img src="{{ project.image_url }}" class="detail-main-img" alt="{{ project.title }}">
+        <div class="detail-grid" style="display:block">
+            <!-- CLICKABLE IMAGE -->
+            <img src="{{ project.image_url }}" class="detail-main-img" alt="{{ project.title }}" id="mainImage" style="cursor:zoom-in;width:100%;height:auto;max-height:80vh;object-fit:contain;border-radius:16px;border:1px solid transparent;background:transparent;display:block;cursor:zoom-in" title="Click to view full image">
 
-                <div class="live-box">
-                    <h3>📊 Project Overview</h3>
-                    <p style="color:#aaa;line-height:1.7">{{ project.description or 'No description added.' }}</p>
-                    {% if project.insights %}
-                    <h3 style="margin-top:25px">💡 Key Insights</h3>
-                    <p style="color:#ccc;white-space:pre-wrap;line-height:1.7">{{ project.insights }}</p>
-                    {% endif %}
-                </div>
+            <p style="color:#888;font-size:12px;margin-top:8px;text-align:center">🔍 Click image to view full dashboard</p>
 
-                {% if project.dataset_url %}
-                <div class="live-box">
-                    <h3>📂 Live Data View</h3>
-                    <p style="color:#888;font-size:13px;margin-bottom:15px">Interactive table — live from your Excel/CSV.</p>
-                    <div id="liveData" class="data-table-wrap" style="padding:20px;color:#888">Loading live data...</div>
-                    <a href="{{ project.dataset_url }}" download class="btn-download">Download Dataset</a>
-                </div>
+            <div class="live-box">
+                <h3>📊 Project Overview</h3>
+                <p style="color:#aaa;line-height:1.7">{{ project.description or 'No description added.' }}</p>
+                {% if project.insights %}
+                <h3 style="margin-top:25px">💡 Key Insights</h3>
+                <p style="color:#ccc;white-space:pre-wrap;line-height:1.7">{{ project.insights }}</p>
                 {% endif %}
-
-                {% if project.embed_code %}
-                <div class="live-box">
-                    <h3>📈 Live Dashboard</h3>
-                    <iframe src="{{ project.embed_code }}" class="embed-frame" allowfullscreen></iframe>
-                </div>
-                {% elif project.dashboard_link %}
-                <div class="live-box">
-                    <h3>📈 Live Dashboard</h3>
-                    <iframe src="{{ project.dashboard_link }}" class="embed-frame" allowfullscreen></iframe>
-                    <p style="margin-top:10px"><a href="{{ project.dashboard_link }}" target="_blank" style="color:#00ff88">Open full dashboard →</a></p>
-                </div>
-                {% endif %}
-
             </div>
 
-            <div>
-                <div class="live-box">
-                    <h3>Tools Used</h3>
-                    <div style="margin-top:10px">
-                        {% for t in project.tools.split(',') %}
-                        <span class="detail-tag">{{ t.strip() }}</span>
-                        {% endfor %}
-                    </div>
-                    {% if project.github_link %}
-                    <a href="{{ project.github_link }}" target="_blank" class="btn-【entity-github¦canonical_name=GitHub】">View Code on 【entity-GitHub¦canonical_name=GitHub】</a>
-                    {% endif %}
-                    {% if project.dataset_url %}
-                    <a href="{{ project.dataset_url }}" target="_blank" class="btn-【entity-github¦canonical_name=GitHub】" style="background:#00ff88;color:#000;border-color:#00ff88;font-weight:700">Download Raw Data</a>
-                    {% endif %}
-                </div>
+            {% if project.dataset_url %}
+            <div class="live-box">
+                <h3>📂 Live Data View</h3>
+                <p style="color:#888;font-size:13px;margin-bottom:15px">Interactive table — live from your Excel/CSV.</p>
+                <div id="liveData" class="data-table-wrap" style="padding:20px;color:#888">Loading live data...</div>
+                <a href="{{ project.dataset_url }}" download class="btn-download">Download Dataset</a>
+            </div>
+            {% endif %}
 
-                <div class="live-box">
-                    <h3>About This Analysis</h3>
-                    <p style="color:#888;font-size:13px;line-height:1.6">This project was analyzed using {{ project.tools }}. All data visualization and insights are displayed live on this website.</p>
+            {% if project.embed_code %}
+            <div class="live-box">
+                <h3>📈 Live Dashboard - Interactive</h3>
+                <div style="width:100%;height:700px;border-radius:12px;overflow:hidden;background:#000;border:1px solid #222">
+                  {% if '<iframe' in project.embed_code %}
+                    {{ project.embed_code | safe }}
+                  {% else %}
+                    <iframe src="{{ project.embed_code }}" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+                  {% endif %}
                 </div>
             </div>
+            {% elif project.dashboard_link %}
+            <div class="live-box">
+                <h3>📈 Live Dashboard</h3>
+                <div style="width:100%;height:700px;border-radius:12px;overflow:hidden;background:#000;border:1px solid #222">
+                    <iframe src="{{ project.dashboard_link }}" style="width:100%;height:100%;border:none" allowfullscreen></iframe>
+                </div>
+            </div>
+            {% endif %}
         </div>
+    </div>
+
+    <!-- LIGHTBOX POPUP FOR FULL IMAGE -->
+    <div id="lightbox">
+        <span id="lightboxClose">&times;</span>
+        <img id="lightboxImg" src="" alt="Full dashboard">
     </div>
 
     <div id="pageData" data-dataset-url="{{ project.dataset_url or '' }}" style="display:none"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
+    // Lightbox logic
+    var mainImg = document.getElementById('mainImage');
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightboxImg');
+    var closeBtn = document.getElementById('lightboxClose');
+
+    if(mainImg){
+      mainImg.addEventListener('click', function(){
+        lightboxImg.src = this.src;
+        lightbox.classList.add('active');
+        document.body.style.overflow='hidden';
+      });
+    }
+    function closeLightbox(){
+      lightbox.classList.remove('active');
+      document.body.style.overflow='';
+    }
+    closeBtn.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', function(e){
+      if(e.target===lightbox || e.target===lightboxImg) closeLightbox();
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key==='Escape') closeLightbox();
+    });
+
+    // Excel live view
     (function(){
       var dataDiv = document.getElementById('pageData');
       var datasetUrl = dataDiv.getAttribute('data-dataset-url');
@@ -119,12 +143,9 @@
             html+='</tr>';
           });
           html+='</tbody></table>';
-          if(json.length>101){
-            html+='<p style="color:#888;font-size:12px;margin-top:10px;padding:10px">Showing first 100 rows of '+(json.length-1)+'. Download full file.</p>';
-          }
           container.innerHTML = html;
         }catch(e){
-          container.innerHTML = 'Failed to load live preview: '+e.message;
+          container.innerHTML = 'Failed to load: '+e.message;
         }
       }
       loadLiveData();
