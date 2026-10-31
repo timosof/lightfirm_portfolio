@@ -33,7 +33,7 @@
         </div>
     </section>
 
-    <div id="analyticsGrid" class="analytics-grid">
+    <div id="analyticsGrid" class="portfolio-grid">
         <p style="color:#888;text-align:center;grid-column:1/-1">Loading projects...</p>
     </div>
 
@@ -51,12 +51,11 @@
           }
           grid.innerHTML = items.map(p=>`
             <a href="/analytics/${p.id}" style="text-decoration:none;color:inherit">
-              <div class="a-card">
-                <img src="${p.image_url}" alt="${p.title}">
-                <div class="a-body">
-                  <h3 style="color:#fff;margin-bottom:5px">${p.title}</h3>
-                  <div class="a-tools">${p.tools.split(',').map(t=>`<span class="a-tag">${t.trim()}</span>`).join('')}</div>
-                  <p style="color:#888;font-size:13px;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.description || ''}</p>
+              <div class="card">
+                <img src="${p.image_url}" alt="${p.title}" style="background:#ffffff !important;height:auto !important;object-fit:contain !important;">
+                <div class="card-info">
+                  <h4>${p.title}</h4>
+                    <span>${p.tools}</span>
                 </div>
               </div>
             </a>

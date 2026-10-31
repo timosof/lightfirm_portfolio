@@ -182,7 +182,13 @@ footer{padding:40px;text-align:center;color:var(--muted);border-top:1px solid #1
 .analytics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px;padding:20px;max-width:1200px;margin:0 auto}
 .a-card{background:#151525;border:1px solid #23233a;border-radius:16px;overflow:hidden;transition:.3s;cursor:pointer}
 .a-card:hover{border-color:#00ff88;transform:translateY(-6px);box-shadow:0 10px 30px rgba(0,255,136,0.15)}
-.a-card img{width:100%;height:220px;object-fit:cover;display:block;background:#0a0a12}
+.a-card img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  display:block;
+  background:#0a0a12}
+  
 .a-body{padding:16px}
 .a-tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
 .a-tag{background:#0f1f15;border:1px solid #1a3a20;padding:4px 10px;border-radius:12px;font-size:11px;color:#00ff88}
@@ -197,7 +203,17 @@ footer{padding:40px;text-align:center;color:var(--muted);border-top:1px solid #1
 .back-link:hover{color:#fff}
 .detail-title{font-size:42px;font-weight:800;color:#fff;margin-top:20px;line-height:1.1}
 .detail-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;margin-top:30px}
-.detail-main-img{width:100%;border-radius:16px;border:1px solid #222;background:#0a0a12;object-fit:cover;max-height:500px}
+
+.detail-main-img{
+  width:100%;
+  height:auto;
+  max-height:none;
+  border-radius:16px;
+  border:1px solid #222;
+  background:#0a0a12;
+  object-fit:contain;
+  display:block;
+}
 .detail-tag{background:#111;border:1px solid #333;padding:6px 12px;border-radius:20px;font-size:12px;color:#00ff88;display:inline-block;margin-right:6px;margin-bottom:6px}
 .live-box{background:#111;border:1px solid #222;border-radius:16px;padding:20px;margin-top:25px}
 .live-box h3{color:#fff;margin-bottom:12px;font-size:18px}
@@ -234,3 +250,30 @@ footer{padding:40px;text-align:center;color:var(--muted);border-top:1px solid #1
   .admin-grid{grid-template-columns:1fr 1fr;gap:10px}
   .admin-card img{height:140px !important}
 }
+
+/* ========== ABOUT PAGE - YOUR DESIGN + ANALYTICS ========== */
+.about-hero{text-align:center;padding:80px 20px 40px;max-width:800px;margin:0 auto}
+.about-hero h1{font-size:48px;line-height:1.1;margin-bottom:15px;color:#fff}
+.about-hero h1 span{color:#ff4d5a}
+.about-hero h1 span.green{color:#00ff88}
+.about-hero p{color:#888;font-size:18px;line-height:1.6}
+.about-grid{display:flex;gap:50px;align-items:center;max-width:1000px;margin:50px auto;padding:0 20px;flex-wrap:wrap;justify-content:center}
+.about-image-wrap{position:relative}
+.about-image-wrap img{width:320px;height:320px;border-radius:24px;object-fit:cover;border:1px solid #23233a;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+.about-image-wrap::after{content:'';position:absolute;top:15px;left:15px;width:100%;height:100%;border:2px solid #ff4d5a;border-radius:24px;z-index:-1}
+.about-text{flex:1;min-width:300px}
+.about-text h2{font-size:32px;margin-bottom:15px;color:#fff}
+.about-text p{color:#aaa;line-height:1.7;margin-bottom:12px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.tool-tag{background:#151525;border:1px solid #23233a;padding:6px 14px;border-radius:20px;font-size:13px;color:#ccc}
+.tool-tag.analytics{background:#0f1f15;border-color:#1a3a20;color:#00ff88}
+.tool-tag.graphics{background:#1f0f0f;border-color:#3a1a1a;color:#ff8a8a}
+.stats{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin:60px auto;max-width:900px;padding:0 20px}
+.stat{text-align:center;background:#111;border:1px solid #222;padding:25px 30px;border-radius:16px;flex:1;min-width:150px}
+.stat h3{font-size:32px;color:#fff}
+.stat p{color:#888;margin-top:5px;font-size:14px}
+.about-services{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1000px;margin:60px auto;padding:0 20px}
+.service-card{background:#151525;border:1px solid #23233a;border-radius:16px;padding:25px}
+.service-card.analytics:hover{border-color:#00ff88}
+.service-card.graphics:hover{border-color:#ff4d5a}
+@media(max-width:768px){.about-hero h1{font-size:32px}.about-image-wrap img{width:260px;height:260px}.about-services{grid-template-columns:1fr}}
